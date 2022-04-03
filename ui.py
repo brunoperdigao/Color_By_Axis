@@ -26,9 +26,12 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         color_by_axis_button = layout.operator('object.color_by_axis', text='Color by Axis Overlay', icon='NONE')
         
         scene = bpy.context.scene
-        layout.prop(scene, 'axis_type', text='')
-        layout.label(text="Reference Object")
-        layout.prop_search(scene, 'axis_ref', scene, 'objects', text="")
+        col1 = layout.column()
+        col1.label(text="Axis Type:")
+        col1.prop(scene, 'axis_type', text='')
+        col2 = layout.column()
+        col2.label(text="Reference Object")
+        col2.prop_search(scene, 'axis_ref', scene, 'objects', text="")
 
         # Use the axis_type chosen in the UI as an input to the operator
         color_by_axis_button.axis_type = scene.axis_type

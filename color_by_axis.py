@@ -107,10 +107,24 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
                 # Vertices local coordinates
                 v1 = e.verts[0].co
                 v2 = e.verts[1].co
+
+                v1_x_round = round(v1[0], 4)
+                v1_y_round = round(v1[1], 4)
+                v1_z_round = round(v1[2], 4)
+                v2_x_round = round(v2[0], 4)
+                v2_y_round = round(v2[1], 4)
+                v2_z_round = round(v2[2], 4)
                 
                 # Vertices global coordinates
                 v1_global = world_matrix @ e.verts[0].co
                 v2_global = world_matrix @ e.verts[1].co
+
+                v1_global_x_round = round(v1_global[0], 4)
+                v1_global_y_round = round(v1_global[1], 4)
+                v1_global_z_round = round(v1_global[2], 4)
+                v2_global_x_round = round(v2_global[0], 4)
+                v2_global_y_round = round(v2_global[1], 4)
+                v2_global_z_round = round(v2_global[2], 4)
                 
                 if not custom_matrix:
                     pass
@@ -121,13 +135,51 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
                     # Have to do this rounding for precision problems
                     # I noticed this when the object location were 180 degress different from the reference.
-                    v1_x_round = round(v1_custom[0], 4)
-                    v1_y_round = round(v1_custom[1], 4)
-                    v1_z_round = round(v1_custom[2], 4)
-                    v2_x_round = round(v2_custom[0], 4)
-                    v2_y_round = round(v2_custom[1], 4)
-                    v2_z_round = round(v2_custom[2], 4)
+                    v1_custom_x_round = round(v1_custom[0], 4)
+                    v1_custom_y_round = round(v1_custom[1], 4)
+                    v1_custom_z_round = round(v1_custom[2], 4)
+                    v2_custom_x_round = round(v2_custom[0], 4)
+                    v2_custom_y_round = round(v2_custom[1], 4)
+                    v2_custom_z_round = round(v2_custom[2], 4)
 
+                    if (v1_custom_y_round == v2_custom_y_round) & (v1_custom_z_round == v2_custom_z_round): # Compare the rounded numbers
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_x.append(v1)    
+                        verts_x.append(v2)  
+
+                    elif (v1_custom_x_round == v2_custom_x_round) & (v1_custom_z_round == v2_custom_z_round): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_y.append(v1)    
+                        verts_y.append(v2)
+                
+                    elif (v1_custom_x_round == v2_custom_x_round) & (v1_custom_y_round == v2_custom_y_round): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_z.append(v1)    
+                        verts_z.append(v2)
+                
+                if self.axis_type == 'GLOBAL':
+                    if (v1_global_y_round == v2_global_y_round) & (v1_global_z_round == v2_global_z_round): # Compare the rounded numbers
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_x.append(v1)    
+                        verts_x.append(v2)  
+
+                    elif (v1_global_x_round == v2_global_x_round) & (v1_global_z_round == v2_global_z_round): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_y.append(v1)    
+                        verts_y.append(v2)
+                    
+                    elif (v1_global_x_round == v2_global_x_round) & (v1_global_y_round == v2_global_y_round): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_z.append(v1)    
+                        verts_z.append(v2)
+
+                if self.axis_type == 'LOCAL':
                     if (v1_y_round == v2_y_round) & (v1_z_round == v2_z_round): # Compare the rounded numbers
                         v1 = v1_global
                         v2 = v2_global
@@ -139,46 +191,8 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
                         v2 = v2_global
                         verts_y.append(v1)    
                         verts_y.append(v2)
-                
+                    
                     elif (v1_x_round == v2_x_round) & (v1_y_round == v2_y_round): 
-                        v1 = v1_global
-                        v2 = v2_global
-                        verts_z.append(v1)    
-                        verts_z.append(v2)
-                
-                if self.axis_type == 'GLOBAL':
-                    if (v1_global[1] == v2_global[1]) & (v1_global[2] == v2_global[2]): # Compare the rounded numbers
-                        v1 = v1_global
-                        v2 = v2_global
-                        verts_x.append(v1)    
-                        verts_x.append(v2)  
-
-                    elif (v1_global[0] == v2_global[0]) & (v1_global[2] == v2_global[2]): 
-                        v1 = v1_global
-                        v2 = v2_global
-                        verts_y.append(v1)    
-                        verts_y.append(v2)
-                    
-                    elif (v1_global[0] == v2_global[0]) & (v1_global[1] == v2_global[1]): 
-                        v1 = v1_global
-                        v2 = v2_global
-                        verts_z.append(v1)    
-                        verts_z.append(v2)
-
-                if self.axis_type == 'LOCAL':
-                    if (v1[1] == v2[1]) & (v1[2] == v2[2]): # Compare the rounded numbers
-                        v1 = v1_global
-                        v2 = v2_global
-                        verts_x.append(v1)    
-                        verts_x.append(v2)  
-
-                    elif (v1[0] == v2[0]) & (v1[2] == v2[2]): 
-                        v1 = v1_global
-                        v2 = v2_global
-                        verts_y.append(v1)    
-                        verts_y.append(v2)
-                    
-                    elif (v1[0] == v2[0]) & (v1[1] == v2[1]): 
                         v1 = v1_global
                         v2 = v2_global
                         verts_z.append(v1)    
