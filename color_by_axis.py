@@ -15,19 +15,13 @@ class OT_color_by_axis(bpy.types.Operator):
 
     def __init__(self):
         self.draw_handle = None
-        self.draw_handle_x = None
-        self.draw_handle_y = None
-        self.draw_handle_z = None
         self.draw_event = None
 
         self.widgets = []
 
     def invoke(self, context, event):
 
-        #self.create_batch()
-        self.create_batch_x()
-        self.create_batch_y()
-        self.create_batch_z()
+        self.create_batch()
 
         args = (self, context)
         self.register_handlers(args, context)
@@ -37,10 +31,10 @@ class OT_color_by_axis(bpy.types.Operator):
 
 
     def register_handlers(self, args, context):
-        #self.draw_handle= bpy.types.SpaceView3D.draw_handler_add(
-        #    self.draw_callback, args, "WINDOW", "POST_VIEW"
-        #)
-
+        self.draw_handle= bpy.types.SpaceView3D.draw_handler_add(
+            self.draw_callback, args, "WINDOW", "POST_VIEW"
+        )
+        '''
         self.draw_handle_x= bpy.types.SpaceView3D.draw_handler_add(
             self.draw_callback_x, args, "WINDOW", "POST_VIEW"
         )
@@ -51,7 +45,7 @@ class OT_color_by_axis(bpy.types.Operator):
 
         self.draw_handle_z= bpy.types.SpaceView3D.draw_handler_add(
             self.draw_callback_z, args, "WINDOW", "POST_VIEW"
-        )
+        )'''
 
         self.draw_event = context.window_manager.event_timer_add(0.1, window=context.window)
 
@@ -59,15 +53,10 @@ class OT_color_by_axis(bpy.types.Operator):
 
         context.window_manager.event_timer_remove(self.draw_event)
 
-        #bpy.types.SpaceView3D.draw_handler_remove(self.draw_handle, "WINDOW")
-        bpy.types.SpaceView3D.draw_handler_remove(self.draw_handle_x, "WINDOW")
-        bpy.types.SpaceView3D.draw_handler_remove(self.draw_handle_y, "WINDOW")
-        bpy.types.SpaceView3D.draw_handler_remove(self.draw_handle_z, "WINDOW")
+        bpy.types.SpaceView3D.draw_handler_remove(self.draw_handle, "WINDOW")
+        
 
-        #self.draw_handle = None
-        self.draw_handle_x = None
-        self.draw_handle_y = None
-        self.draw_handle_z = None
+        self.draw_handle = None
         self.draw_event = None
 
     def modal(self, context, event):
@@ -112,6 +101,7 @@ class OT_color_by_axis(bpy.types.Operator):
             obj_scale = o.matrix_world.to_scale()
             obj_rotation = o.matrix_world.to_euler()
 
+            # ATTENTION for now this is referencing the object by name. Have to improve that        
             # Get the reference rotation
             custom_euler = copy.copy(bpy.context.scene.objects['Empty'].matrix_world.to_euler())
             
@@ -196,48 +186,30 @@ class OT_color_by_axis(bpy.types.Operator):
 
     def create_batch(self):
         
-        vertices = self.get_verts()
-        self.shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
-        self.batch = batch_for_shader(self.shader, 'LINES', {"pos": vertices})
-
-    def create_batch_x(self):
-        
-        vertices = self.get_x_verts()
+        vertices_x = self.get_x_verts()
         self.shader_x = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
-        self.batch_x = batch_for_shader(self.shader_x, 'LINES', {"pos": vertices})
-
-    def create_batch_y(self):
+        self.batch_x = batch_for_shader(self.shader_x, 'LINES', {"pos": vertices_x})
         
-        vertices = self.get_y_verts()
+        vertices_y = self.get_y_verts()
         self.shader_y = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
-        self.batch_y = batch_for_shader(self.shader_y, 'LINES', {"pos": vertices})
+        self.batch_y = batch_for_shader(self.shader_y, 'LINES', {"pos": vertices_y})
 
-    def create_batch_z(self):
-        
-        vertices = self.get_z_verts()
+        vertices_z = self.get_z_verts()
         self.shader_z = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
-        self.batch_z = batch_for_shader(self.shader_z, 'LINES', {"pos": vertices})
-        
+        self.batch_z = batch_for_shader(self.shader_z, 'LINES', {"pos": vertices_z})
 
     def draw_callback(self, op, context):
-        self.shader.bind()
-        self.shader.uniform_float("color", (1, 1, 1, 1))
-        self.batch.draw(self.shader)
-
-    def draw_callback_x(self, op, context):
         bgl.glLineWidth(5)
         self.shader_x.bind()
         self.shader_x.uniform_float("color", (1, 0, 0, 1))
         self.batch_x.draw(self.shader_x)
 
-    def draw_callback_y(self, op, context):
-        bgl.glLineWidth(5)
+        #bgl.glLineWidth(5)
         self.shader_y.bind()
         self.shader_y.uniform_float("color", (0, 1, 0, 1))
         self.batch_y.draw(self.shader_y)
 
-    def draw_callback_z(self, op, context):
-        bgl.glLineWidth(5)          
+        #bgl.glLineWidth(5)          
         self.shader_z.bind()
         self.shader_z.uniform_float("color", (0, 0, 1, 1))
         self.batch_z.draw(self.shader_z)
