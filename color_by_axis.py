@@ -6,6 +6,7 @@ import gpu
 import copy
 import mathutils
 from gpu_extras.batch import batch_for_shader
+from .messagebox import CBA_OT_MessageBox
 
 class CBA_OT_Color_by_Axis(bpy.types.Operator):
     bl_idname = "object.color_by_axis"
@@ -20,7 +21,15 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
         self.draw_handle = None
         self.draw_event = None
 
+    
+
     def invoke(self, context, event):
+        
+        for o in bpy.context.objects_in_mode:
+            if o.type  != 'MESH':
+                msg = 'This operator only work with meshes. Please check if you selected other kinds of objects'
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=msg)
+                return {"CANCELLED"}
 
         self.create_batch()
 
@@ -29,7 +38,6 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
-
 
     def register_handlers(self, args, context):
         self.draw_handle= bpy.types.SpaceView3D.draw_handler_add(
@@ -70,7 +78,8 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
             
             # Here I get the object location, scale and rotation, so I can mix with the rotation of a reference object.
             # That way I can compare the vertices locations based on the reference axis
-            
+        
+
             obj_location = o.matrix_world.to_translation()
             obj_scale = o.matrix_world.to_scale()
             obj_rotation = o.matrix_world.to_euler()
@@ -213,7 +222,7 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
         self.batch_z = batch_for_shader(self.shader_z, 'LINES', {"pos": vertices_z})
 
     def draw_callback(self, op, context):
-        bgl.glLineWidth(5)
+        bgl.glLineWidth(2)
 
         self.shader_x.bind()
         self.shader_x.uniform_float("color", (1, 0, 0, 1))
@@ -226,3 +235,5 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
         self.shader_z.bind()
         self.shader_z.uniform_float("color", (0, 0, 1, 1))
         self.batch_z.draw(self.shader_z)
+
+ 
