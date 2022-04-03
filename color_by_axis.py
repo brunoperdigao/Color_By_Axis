@@ -7,11 +7,13 @@ import copy
 import mathutils
 from gpu_extras.batch import batch_for_shader
 
-class OT_color_by_axis(bpy.types.Operator):
+class CBA_OT_Color_by_Axis(bpy.types.Operator):
     bl_idname = "object.color_by_axis"
     bl_label = "Color By Axis"
     bl_description = "Operator to color edges by axis"
     bl_options = {'REGISTER'}
+
+    axis_type: bpy.props.StringProperty(name="Axis Type")
 
     def __init__(self):
         self.draw_handle = None
@@ -89,29 +91,31 @@ class OT_color_by_axis(bpy.types.Operator):
             obj_scale = o.matrix_world.to_scale()
             obj_rotation = o.matrix_world.to_euler()
 
-            # ATTENTION for now this is referencing the object by name. Have to improve that        
-            # Get the reference rotation
-            custom_euler = copy.copy(bpy.context.scene.objects['Empty'].matrix_world.to_euler())
-            
-            # TO DO
-            # Checar se isso ainda é válido
-            
-            custom_euler[0] = custom_euler[0] - obj_rotation[0]
-            if custom_euler[0] < 0:
-                custom_euler[0] = custom_euler[0] * -1
-            custom_euler[1] = custom_euler[1] - obj_rotation[1]
-            if custom_euler[1] < 0:
-                custom_euler[1] = custom_euler[1] * -1
-            custom_euler[2] = custom_euler[2] - obj_rotation[2]
-            if custom_euler[2] < 0:
-                custom_euler[2] = custom_euler[2] * -1
-            
             # Object global matrix
             world_matrix = o.matrix_world
+            custom_matrix = None
 
-            # Custom matrix, mixed with the reference rotation
-            custom_matrix = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
             bm = bmesh.from_edit_mesh(o.data)
+
+            if self.axis_type == 'REFERENCE':
+            # ATTENTION for now this is referencing the object by name. Have to improve that        
+            # Get the reference rotation
+                custom_euler = copy.copy(bpy.context.scene.objects['Empty'].matrix_world.to_euler())
+                                                
+                custom_euler[0] = custom_euler[0] - obj_rotation[0]
+                if custom_euler[0] < 0:
+                    custom_euler[0] = custom_euler[0] * -1
+                custom_euler[1] = custom_euler[1] - obj_rotation[1]
+                if custom_euler[1] < 0:
+                    custom_euler[1] = custom_euler[1] * -1
+                custom_euler[2] = custom_euler[2] - obj_rotation[2]
+                if custom_euler[2] < 0:
+                    custom_euler[2] = custom_euler[2] * -1
+                
+                # Custom matrix, mixed with the reference rotation
+                custom_matrix = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
+            
+            
             for e in bm.edges:
                 #if e.select:
                 v1 = e.verts[0].co
@@ -120,35 +124,78 @@ class OT_color_by_axis(bpy.types.Operator):
                 v1_global = world_matrix @ e.verts[0].co
                 v2_global = world_matrix @ e.verts[1].co
                 
-                v1_custom = custom_matrix @ e.verts[0].co
-                v2_custom = custom_matrix @ e.verts[1].co
+                if not custom_matrix:
+                    pass
+                else:
 
-                # Have to do this rounding for precision problems
-                # I noticed this when the object location were 180 degress different from the reference.
-                v1_x_round = round(v1_custom[0], 4)
-                v1_y_round = round(v1_custom[1], 4)
-                v1_z_round = round(v1_custom[2], 4)
-                v2_x_round = round(v2_custom[0], 4)
-                v2_y_round = round(v2_custom[1], 4)
-                v2_z_round = round(v2_custom[2], 4)                
-                
-                if (v1_y_round == v2_y_round) & (v1_z_round == v2_z_round): # Compare the rounded numbers
-                    v1 = v1_global
-                    v2 = v2_global
-                    verts_x.append(v1)    
-                    verts_x.append(v2)  
 
-                elif (v1_x_round == v2_x_round) & (v1_z_round == v2_z_round): 
-                    v1 = v1_global
-                    v2 = v2_global
-                    verts_y.append(v1)    
-                    verts_y.append(v2)
+                    v1_custom = custom_matrix @ e.verts[0].co
+                    v2_custom = custom_matrix @ e.verts[1].co
+
+                    # Have to do this rounding for precision problems
+                    # I noticed this when the object location were 180 degress different from the reference.
+                    v1_x_round = round(v1_custom[0], 4)
+                    v1_y_round = round(v1_custom[1], 4)
+                    v1_z_round = round(v1_custom[2], 4)
+                    v2_x_round = round(v2_custom[0], 4)
+                    v2_y_round = round(v2_custom[1], 4)
+                    v2_z_round = round(v2_custom[2], 4)
+
+                    if (v1_y_round == v2_y_round) & (v1_z_round == v2_z_round): # Compare the rounded numbers
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_x.append(v1)    
+                        verts_x.append(v2)  
+
+                    elif (v1_x_round == v2_x_round) & (v1_z_round == v2_z_round): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_y.append(v1)    
+                        verts_y.append(v2)
                 
-                elif (v1_x_round == v2_x_round) & (v1_y_round == v2_y_round): 
-                    v1 = v1_global
-                    v2 = v2_global
-                    verts_z.append(v1)    
-                    verts_z.append(v2)  
+                    elif (v1_x_round == v2_x_round) & (v1_y_round == v2_y_round): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_z.append(v1)    
+                        verts_z.append(v2)
+                
+                if self.axis_type == 'GLOBAL':
+                    if (v1_global[1] == v2_global[1]) & (v1_global[2] == v2_global[2]): # Compare the rounded numbers
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_x.append(v1)    
+                        verts_x.append(v2)  
+
+                    elif (v1_global[0] == v2_global[0]) & (v1_global[2] == v2_global[2]): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_y.append(v1)    
+                        verts_y.append(v2)
+                    
+                    elif (v1_global[0] == v2_global[0]) & (v1_global[1] == v2_global[1]): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_z.append(v1)    
+                        verts_z.append(v2)
+
+                if self.axis_type == 'LOCAL':
+                    if (v1[1] == v2[1]) & (v1[2] == v2[2]): # Compare the rounded numbers
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_x.append(v1)    
+                        verts_x.append(v2)  
+
+                    elif (v1[0] == v2[0]) & (v1[2] == v2[2]): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_y.append(v1)    
+                        verts_y.append(v2)
+                    
+                    elif (v1[0] == v2[0]) & (v1[1] == v2[1]): 
+                        v1 = v1_global
+                        v2 = v2_global
+                        verts_z.append(v1)    
+                        verts_z.append(v2)
             
         return verts_x, verts_y, verts_z
     
