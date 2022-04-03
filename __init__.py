@@ -2,7 +2,7 @@ bl_info = {
     "name": "Color by Axis",
     "author": "Bruno Perdigão",
     "description": "Color by Axis is a Blender add-on that allows you to check whether the edges of an object are aligned with the X, Y or Z axis, by creating a color overlay.",
-    "blender": (3, 10, 0),
+    "blender": (3, 00, 0),
     "location": "",
     "warning": "",
     "category": "Mesh"
