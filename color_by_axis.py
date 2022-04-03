@@ -105,11 +105,18 @@ class OT_color_by_axis(bpy.types.Operator):
 
         for o in bpy.context.objects_in_mode:
             
+            # Here I get the object location, scale and rotation, so I can mix with the rotation of a reference object.
+            # That way I can compare the vertices locations based on the reference axis
+            
             obj_location = o.matrix_world.to_translation()
             obj_scale = o.matrix_world.to_scale()
             obj_rotation = o.matrix_world.to_euler()
 
+            # Get the reference rotation
             custom_euler = copy.copy(bpy.context.scene.objects['Empty'].matrix_world.to_euler())
+            
+            # TO DO
+            # Checar se isso ainda é válido
             custom_euler[0] = custom_euler[0] - obj_rotation[0]
             if custom_euler[0] < 0:
                 custom_euler[0] = custom_euler[0] * -1
@@ -120,10 +127,11 @@ class OT_color_by_axis(bpy.types.Operator):
             if custom_euler[2] < 0:
                 custom_euler[2] = custom_euler[2] * -1
 
+            # Object global matrix
             world_matrix = o.matrix_world
-            print("WORLD", world_matrix.to_euler(), world_matrix)
+
+            # Custom matrix, mixed with the reference rotation
             custom_matrix = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
-            print("CUSTOM", custom_matrix.to_euler(), custom_matrix)
             bm = bmesh.from_edit_mesh(o.data)
             for e in bm.edges:
                 #if e.select:
@@ -136,24 +144,18 @@ class OT_color_by_axis(bpy.types.Operator):
                 v1_custom = custom_matrix @ e.verts[0].co
                 v2_custom = custom_matrix @ e.verts[1].co
 
-                
+                # Have to do this rounding for precision problems
+                # I noticed this when the object location were 180 degress different from the reference.
                 v1_y_round = round(v1_custom[1], 4)
                 v1_z_round = round(v1_custom[2], 4)
                 v2_y_round = round(v2_custom[1], 4)
-                v2_z_round = round(v2_custom[2], 4)
-                #print(v1_y_round, v2_y_round)
-                #print(v1_z_round, v2_z_ro  und)
-                    
+                v2_z_round = round(v2_custom[2], 4)                
                 
-                
-                if (v1_y_round == v2_y_round) & (v1_z_round == v2_z_round): 
+                if (v1_y_round == v2_y_round) & (v1_z_round == v2_z_round): # Compare the rounded numbers
                     v1 = v1_global
                     v2 = v2_global
                     verts.append(v1)    
                     verts.append(v2)  
-                    if e.index == 4:
-                        print("ENTROU")
-                        print(v1, v2)
             
         return verts
 
