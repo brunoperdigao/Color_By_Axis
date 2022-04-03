@@ -20,8 +20,6 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
         self.draw_handle = None
         self.draw_event = None
 
-        self.widgets = []
-
     def invoke(self, context, event):
 
         self.create_batch()
@@ -37,18 +35,6 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
         self.draw_handle= bpy.types.SpaceView3D.draw_handler_add(
             self.draw_callback, args, "WINDOW", "POST_VIEW"
         )
-        '''
-        self.draw_handle_x= bpy.types.SpaceView3D.draw_handler_add(
-            self.draw_callback_x, args, "WINDOW", "POST_VIEW"
-        )
-
-        self.draw_handle_y= bpy.types.SpaceView3D.draw_handler_add(
-            self.draw_callback_y, args, "WINDOW", "POST_VIEW"
-        )
-
-        self.draw_handle_z= bpy.types.SpaceView3D.draw_handler_add(
-            self.draw_callback_z, args, "WINDOW", "POST_VIEW"
-        )'''
 
         self.draw_event = context.window_manager.event_timer_add(0.1, window=context.window)
 
@@ -58,7 +44,6 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
         bpy.types.SpaceView3D.draw_handler_remove(self.draw_handle, "WINDOW")
         
-
         self.draw_handle = None
         self.draw_event = None
 
@@ -79,9 +64,7 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
     def get_verts(self):
         verts_x = []
         verts_y = []
-        verts_z = []
-        verts_by_edges = []
-        
+        verts_z = []        
 
         for o in bpy.context.objects_in_mode:
             
@@ -101,12 +84,11 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
             # Calling the property directly from the context
             axis_reference = bpy.context.scene.axis_ref
 
-            if self.axis_type == 'REFERENCE' and axis_reference:
-            # ATTENTION for now this is referencing the object by name. Have to improve that        
+            if self.axis_type == 'REFERENCE' and axis_reference:   
             # Get the reference rotation
-                #custom_euler = copy.copy(bpy.context.scene.objects['Empty'].matrix_world.to_euler())
                 custom_euler = copy.copy(axis_reference.matrix_world.to_euler())
-                                                
+
+                # To get the rotation relative to the reference I have to subtract the reference euler by the object euler, and avoid negative numbers                                
                 custom_euler[0] = custom_euler[0] - obj_rotation[0]
                 if custom_euler[0] < 0:
                     custom_euler[0] = custom_euler[0] * -1
@@ -122,18 +104,18 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
             
             
             for e in bm.edges:
-                #if e.select:
+                # Vertices local coordinates
                 v1 = e.verts[0].co
                 v2 = e.verts[1].co
                 
+                # Vertices global coordinates
                 v1_global = world_matrix @ e.verts[0].co
                 v2_global = world_matrix @ e.verts[1].co
                 
                 if not custom_matrix:
                     pass
                 else:
-
-
+                    # Vertices reference coordinates
                     v1_custom = custom_matrix @ e.verts[0].co
                     v2_custom = custom_matrix @ e.verts[1].co
 
@@ -218,16 +200,15 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
     def draw_callback(self, op, context):
         bgl.glLineWidth(5)
+
         self.shader_x.bind()
         self.shader_x.uniform_float("color", (1, 0, 0, 1))
         self.batch_x.draw(self.shader_x)
 
-        #bgl.glLineWidth(5)
         self.shader_y.bind()
         self.shader_y.uniform_float("color", (0, 1, 0, 1))
         self.batch_y.draw(self.shader_y)
 
-        #bgl.glLineWidth(5)          
         self.shader_z.bind()
         self.shader_z.uniform_float("color", (0, 0, 1, 1))
         self.batch_z.draw(self.shader_z)
