@@ -72,23 +72,11 @@ class OT_color_by_axis(bpy.types.Operator):
     def finish(self):
         self.unregister_handlers(context)
         return {"FINISHED"}
-
+    
     def get_verts(self):
-        verts = []
-        verts_by_edges = []
-        for o in bpy.context.objects_in_mode:
-            world_matrix = o.matrix_world
-            bm = bmesh.from_edit_mesh(o.data)
-            for e in bm.edges:
-                #if e.select:
-                for v in e.verts:
-                #        if v.select:
-                    v =  world_matrix @ v.co
-                    verts.append(v)
-        return verts
-
-    def get_x_verts(self):
-        verts = []
+        verts_x = []
+        verts_y = []
+        verts_z = []
         verts_by_edges = []
         
 
@@ -107,6 +95,7 @@ class OT_color_by_axis(bpy.types.Operator):
             
             # TO DO
             # Checar se isso ainda é válido
+            
             custom_euler[0] = custom_euler[0] - obj_rotation[0]
             if custom_euler[0] < 0:
                 custom_euler[0] = custom_euler[0] * -1
@@ -116,7 +105,7 @@ class OT_color_by_axis(bpy.types.Operator):
             custom_euler[2] = custom_euler[2] - obj_rotation[2]
             if custom_euler[2] < 0:
                 custom_euler[2] = custom_euler[2] * -1
-
+            
             # Object global matrix
             world_matrix = o.matrix_world
 
@@ -136,65 +125,42 @@ class OT_color_by_axis(bpy.types.Operator):
 
                 # Have to do this rounding for precision problems
                 # I noticed this when the object location were 180 degress different from the reference.
+                v1_x_round = round(v1_custom[0], 4)
                 v1_y_round = round(v1_custom[1], 4)
                 v1_z_round = round(v1_custom[2], 4)
+                v2_x_round = round(v2_custom[0], 4)
                 v2_y_round = round(v2_custom[1], 4)
                 v2_z_round = round(v2_custom[2], 4)                
                 
                 if (v1_y_round == v2_y_round) & (v1_z_round == v2_z_round): # Compare the rounded numbers
                     v1 = v1_global
                     v2 = v2_global
-                    verts.append(v1)    
-                    verts.append(v2)  
+                    verts_x.append(v1)    
+                    verts_x.append(v2)  
+
+                elif (v1_x_round == v2_x_round) & (v1_z_round == v2_z_round): 
+                    v1 = v1_global
+                    v2 = v2_global
+                    verts_y.append(v1)    
+                    verts_y.append(v2)
+                
+                elif (v1_x_round == v2_x_round) & (v1_y_round == v2_y_round): 
+                    v1 = v1_global
+                    v2 = v2_global
+                    verts_z.append(v1)    
+                    verts_z.append(v2)  
             
-        return verts
-
-    def get_y_verts(self):
-        verts = []
-        verts_by_edges = []
-        for o in bpy.context.objects_in_mode:
-            world_matrix = o.matrix_world
-            bm = bmesh.from_edit_mesh(o.data)
-            for e in bm.edges:
-                #if e.select:
-                v1 = e.verts[0]                    
-                v2 = e.verts[1]
-                if (v1.co[0] == v2.co[0]) & (v1.co[2] == v2.co[2]):
-                    v1 =  world_matrix @ v1.co
-                    v2 =  world_matrix @ v2.co 
-                    verts.append(v1)
-                    verts.append(v2)
-        return verts
-
-    def get_z_verts(self):
-        verts = []
-        verts_by_edges = []
-        for o in bpy.context.objects_in_mode:
-            world_matrix = o.matrix_world
-            bm = bmesh.from_edit_mesh(o.data)
-            for e in bm.edges:
-                #if e.select:
-                v1 = e.verts[0]                    
-                v2 = e.verts[1]
-                if (v1.co[0] == v2.co[0]) & (v1.co[1] == v2.co[1]):
-                    v1 =  world_matrix @ v1.co
-                    v2 =  world_matrix @ v2.co
-                    verts.append(v1)
-                    verts.append(v2)
-        return verts
-
-
+        return verts_x, verts_y, verts_z
+    
     def create_batch(self):
         
-        vertices_x = self.get_x_verts()
+        vertices_x, vertices_y, vertices_z = self.get_verts()
         self.shader_x = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
         self.batch_x = batch_for_shader(self.shader_x, 'LINES', {"pos": vertices_x})
-        
-        vertices_y = self.get_y_verts()
+                
         self.shader_y = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
         self.batch_y = batch_for_shader(self.shader_y, 'LINES', {"pos": vertices_y})
-
-        vertices_z = self.get_z_verts()
+        
         self.shader_z = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
         self.batch_z = batch_for_shader(self.shader_z, 'LINES', {"pos": vertices_z})
 
