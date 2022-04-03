@@ -28,37 +28,22 @@ The add-on will create a Panel in the N-Panel, called Color by Axis. The panel h
   - Select the object which will be used by the REFERENCE axis type.
 
 ## Quick example
-Add a default cube and enter "Edit Mode". Click the button "Color by Axis" in the N-panel. The edges of the cube will be colored according to the axis that they are parallel to.
+- Add a default cube, make a copy and rotate it 30 degrees in Z axis.
+- Add an empty and rotate it 30 degrees in Z axis.
+- Select both cubes and enter "Edit Mode". 
+- Click the button "Color by Axis" in the N-panel. The edges of the cube will be colored according to the axis that they are parallel to.
 
-![image](https://user-images.githubusercontent.com/57102715/161439473-ae5717c5-a9fa-4a25-97b7-5742043c8559.png)
+![image](https://user-images.githubusercontent.com/57102715/161441790-e76ce8cd-2ab5-44cc-9200-bc76afcc0481.png)
 
+---
+- If "LOCAL" Axis Type is selected, it will color the edges based on the local coordinates of the objects.
 
-By rotating 30 degrees in the Z axis, in "Object Mode", there are no edges parallel to X or Y axis anymore:
+![image](https://user-images.githubusercontent.com/57102715/161441804-806acddd-43f5-49c9-84ff-6a6a4b09843c.png)
 
-![image](https://user-images.githubusercontent.com/57102715/161439519-97e539c1-ef47-40c7-8391-e4f5ba142a74.png)
+---
+- If "REFERENCE" Axis Type is selected, choose the empty object as reference. It will color the edges based on the local coordinates of the reference object.
 
-
-
-If "LOCAL" Axis Type is selected, it will color the edges based on the local coordinates of the objects.
-
-![image](https://user-images.githubusercontent.com/57102715/161439508-34dec154-33b3-4e0d-b759-da63e94fa1ee.png)
-
-
-
-If "REFERENCE" Axis Type is selected, you have to choose another object for reference. It will color the edges based on the local coordinates of the reference object.
-
-![image](https://user-images.githubusercontent.com/57102715/161439576-6d7333f0-56b6-46c5-b556-405328303110.png)
-
-
-Works with multiple objects:
-
-![image](https://user-images.githubusercontent.com/57102715/161440880-1ca8313a-a73a-4634-b632-d00d1297649e.png)
-
-![image](https://user-images.githubusercontent.com/57102715/161440922-6f03169d-1318-4b7f-9c63-46877d1ba97c.png)
-
-![image](https://user-images.githubusercontent.com/57102715/161440939-6b4eec40-20f8-4108-ad16-f995d46f9cbb.png)
-
-
+![image](https://user-images.githubusercontent.com/57102715/161441840-5dac9f47-da16-4b9a-a89d-e8e7f7e0811a.png)
 
 
 
