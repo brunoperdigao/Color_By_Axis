@@ -2,7 +2,14 @@
 
 Color by Axis is a Blender add-on that allows you to check whether the edges of an object are aligned with the X, Y or Z axis, by creating a color overlay.
 
-⚠ This add-on is still a work in progress.
+⚠ This add-on is still a work in progress. Currently tested on Blender 3.0 and above.
+
+## Instalation
+
+Download the source code as "zip" an install like any other Blender add-on.
+
+![image](https://user-images.githubusercontent.com/57102715/161441645-727c19ab-a606-49e9-a42d-6bf2fd8510d8.png)
+
 
 ## How it works
 
