@@ -14,6 +14,7 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     axis_type: bpy.props.StringProperty(name="Axis Type")
+    
 
     def __init__(self):
         self.draw_handle = None
@@ -97,10 +98,14 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
             bm = bmesh.from_edit_mesh(o.data)
 
-            if self.axis_type == 'REFERENCE':
+            # Calling the property directly from the context
+            axis_reference = bpy.context.scene.axis_ref
+
+            if self.axis_type == 'REFERENCE' and axis_reference:
             # ATTENTION for now this is referencing the object by name. Have to improve that        
             # Get the reference rotation
-                custom_euler = copy.copy(bpy.context.scene.objects['Empty'].matrix_world.to_euler())
+                #custom_euler = copy.copy(bpy.context.scene.objects['Empty'].matrix_world.to_euler())
+                custom_euler = copy.copy(axis_reference.matrix_world.to_euler())
                                                 
                 custom_euler[0] = custom_euler[0] - obj_rotation[0]
                 if custom_euler[0] < 0:

@@ -29,7 +29,7 @@ def register():
     ]
 
     bpy.types.Scene.axis_type = bpy.props.EnumProperty(items=items, name="Axis type", description="Choose axis type that will affect the overlay")
-    
+    bpy.types.Scene.axis_ref = bpy.props.PointerProperty(type=bpy.types.Object)
     
 
 def unregister():
@@ -38,6 +38,7 @@ def unregister():
         unregister_class(cls)
 
     del bpy.types.Scene.axis_type
+    del bpy.types.Scene.axis_ref
 
 if __name__ == "__main__":
     register()

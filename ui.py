@@ -1,3 +1,4 @@
+from re import L
 import bpy
 
 class CBA_PT_Main_Panel(bpy.types.Panel):
@@ -26,5 +27,12 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         
         scene = bpy.context.scene
         layout.prop(scene, 'axis_type', text='')
+        layout.label(text="Reference Object")
+        layout.prop_search(scene, 'axis_ref', scene, 'objects', text="")
 
+        # Use the axis_type chosen in the UI as an input to the operator
         color_by_axis_button.axis_type = scene.axis_type
+
+
+
+
