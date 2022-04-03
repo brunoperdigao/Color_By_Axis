@@ -51,11 +51,11 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
         if context.area:
             context.area.tag_redraw()
 
-        if event.type in {"ESC"}:
+        if event.type in {'ESC', 'RET', 'NUMPAD_ENTER', 'TAB', 'SPACE', 'RIGHTMOUSE', 'LEFTMOUSE'} or event.ascii:
             self.unregister_handlers(context)
             return {'CANCELLED'}
 
-        return {"PASS_THROUGH"}
+        return {'PASS_THROUGH'}
 
     def finish(self):
         self.unregister_handlers(context)
