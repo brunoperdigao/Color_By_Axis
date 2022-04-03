@@ -25,11 +25,26 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
     def invoke(self, context, event):
         
-        for o in bpy.context.objects_in_mode:
+        # Error handling
+        for o in context.objects_in_mode:
             if o.type  != 'MESH':
-                msg = 'This operator only work with meshes. Please check if you selected other kinds of objects'
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=msg)
+                msg1 = 'This operator only work with meshes.'
+                msg2 = 'Please check if there is other kind of object in selection.'
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message_line1=msg1, message_line2=msg2)
                 return {"CANCELLED"}
+
+        # Error handling
+        if context.mode != 'EDIT_MESH':
+            msg = 'This operator only works in Edit Mode'
+            bpy.ops.message.messagebox('INVOKE_DEFAULT', message_line1=msg)
+            return {"CANCELLED"}                           
+
+        # Error handling
+        if self.axis_type == 'REFERENCE' and not context.scene.axis_ref:
+                msg = 'Please choose a reference object.'
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message_line1=msg)
+                return {"CANCELLED"}
+
 
         self.create_batch()
 
