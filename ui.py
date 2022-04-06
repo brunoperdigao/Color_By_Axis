@@ -13,7 +13,6 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
 
         @classmethod
         def poll(self, context):
-            # only run if in edit mode
             if context.mode != 'OBJECT':
                 return True
             else:

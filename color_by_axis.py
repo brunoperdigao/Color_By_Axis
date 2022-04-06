@@ -6,7 +6,7 @@ import gpu
 import copy
 import mathutils
 from gpu_extras.batch import batch_for_shader
-from .messagebox import CBA_OT_MessageBox
+from .error_message import CBA_OT_ErrorMessage
 
 class CBA_OT_Color_by_Axis(bpy.types.Operator):
     bl_idname = "object.color_by_axis"
@@ -25,24 +25,24 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
     def invoke(self, context, event):
         
-        # Error handling
+        # Error message
         for o in context.objects_in_mode:
             if o.type  != 'MESH':
                 msg1 = 'This operator only work with meshes.'
-                msg2 = 'Please check if there is other kind of object in selection.'
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message_line1=msg1, message_line2=msg2)
+                msg2 = 'Please check if there are other kind of objects in selection.'
+                bpy.ops.message.error_message('INVOKE_DEFAULT', message_line1=msg1, message_line2=msg2)
                 return {"CANCELLED"}
 
-        # Error handling
+        # Error message
         if context.mode != 'EDIT_MESH':
             msg = 'This operator only works in Edit Mode'
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message_line1=msg)
+            bpy.ops.message.error_message('INVOKE_DEFAULT', message_line1=msg)
             return {"CANCELLED"}                           
 
-        # Error handling
+        # Error message
         if self.axis_type == 'REFERENCE' and not context.scene.axis_ref:
                 msg = 'Please choose a reference object.'
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message_line1=msg)
+                bpy.ops.message.error_message('INVOKE_DEFAULT', message_line1=msg)
                 return {"CANCELLED"}
 
 
@@ -91,10 +91,8 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
 
         for o in bpy.context.objects_in_mode:
             
-            # Here I get the object location, scale and rotation, so I can mix with the rotation of a reference object.
-            # That way I can compare the vertices locations based on the reference axis
-        
-
+            # Get the object location, scale and rotation, to mix with the rotation of a reference object.
+            # This is used when axis_type == 'REFERENCE'
             obj_location = o.matrix_world.to_translation()
             obj_scale = o.matrix_world.to_scale()
             obj_rotation = o.matrix_world.to_euler()
@@ -109,20 +107,17 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
             axis_reference = bpy.context.scene.axis_ref
 
             if self.axis_type == 'REFERENCE' and axis_reference:   
-            # Get the reference rotation
+                # Get the reference rotation
                 custom_euler = copy.copy(axis_reference.matrix_world.to_euler())
 
-                # To get the rotation relative to the reference I have to subtract the reference euler by the object euler, and avoid negative numbers                                
+                # To get the rotation relative to the reference, subtract the reference euler by the object euler, and avoid negative numbers
                 custom_euler[0] = custom_euler[0] - obj_rotation[0]
-                if custom_euler[0] < 0:
-                    custom_euler[0] = custom_euler[0] * -1
                 custom_euler[1] = custom_euler[1] - obj_rotation[1]
-                if custom_euler[1] < 0:
-                    custom_euler[1] = custom_euler[1] * -1
                 custom_euler[2] = custom_euler[2] - obj_rotation[2]
-                if custom_euler[2] < 0:
-                    custom_euler[2] = custom_euler[2] * -1
-                
+                for v in custom_euler:
+                    if v < 0:
+                        v = v * (-1)
+
                 # Custom matrix, mixed with the reference rotation
                 custom_matrix = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
             
@@ -157,8 +152,7 @@ class CBA_OT_Color_by_Axis(bpy.types.Operator):
                     v1_custom = custom_matrix @ e.verts[0].co
                     v2_custom = custom_matrix @ e.verts[1].co
 
-                    # Have to do this rounding for precision problems
-                    # I noticed this when the object location were 180 degress different from the reference.
+                    # Rounding to avoid precision problems
                     v1_custom_x_round = round(v1_custom[0], 4)
                     v1_custom_y_round = round(v1_custom[1], 4)
                     v1_custom_z_round = round(v1_custom[2], 4)

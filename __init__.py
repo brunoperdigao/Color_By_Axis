@@ -10,12 +10,12 @@ bl_info = {
 
 import bpy
 from .color_by_axis import CBA_OT_Color_by_Axis
-from .messagebox import CBA_OT_MessageBox
+from .error_message import CBA_OT_ErrorMessage
 from .ui import CBA_PT_Main_Panel
 
 classes = (
     CBA_OT_Color_by_Axis,
-    CBA_OT_MessageBox,
+    CBA_OT_ErrorMessage,
     CBA_PT_Main_Panel
 )
 

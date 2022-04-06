@@ -1,7 +1,7 @@
 import bpy
 
-class CBA_OT_MessageBox(bpy.types.Operator):
-    bl_idname = "message.messagebox"
+class CBA_OT_ErrorMessage(bpy.types.Operator):
+    bl_idname = "message.error_message"
     bl_label = ""
  
     message_line1: bpy.props.StringProperty(
