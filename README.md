@@ -31,7 +31,7 @@ The add-on will create a Panel in the N-Panel, called Color by Axis. The panel h
 - Add a default cube, make a copy and rotate it 30 degrees in Z axis.
 - Add an empty and rotate it 30 degrees in Z axis.
 - Select both cubes and enter "Edit Mode". 
-- Click the button "Color by Axis" in the N-panel. The edges of the cube will be colored according to the axis that they are parallel to.
+- Click the button "Color by Axis" in the N-panel. The edges of the cube will be colored according to the global axis that they are parallel to.
 
 ![image](https://user-images.githubusercontent.com/57102715/161441790-e76ce8cd-2ab5-44cc-9200-bc76afcc0481.png)
 
