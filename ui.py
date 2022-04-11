@@ -31,6 +31,7 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         col2 = layout.column()
         col2.label(text="Reference Object")
         col2.prop_search(scene, 'axis_ref', scene, 'objects', text="")
+        layout.prop(scene, "draw_permanent", toggle=True)
 
         # Use the axis_type chosen in the UI as an input to the operator
         color_by_axis_button.axis_type = scene.axis_type
