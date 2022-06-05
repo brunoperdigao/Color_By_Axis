@@ -76,8 +76,14 @@ class CBA_Edges(bpy.types.Operator):
         context = bpy.context
         line_width = context.scene.line_width
         bgl.glLineWidth(line_width)
+        
+        # Get colors from User Preferences in Blender Default Theme
+        theme = context.preferences.themes[0]
+        ui = theme.user_interface
+        
+        
         verts_axes = CBA_Edges.get_verts()
-        for i, color in enumerate(((1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1))):
+        for i, color in enumerate(((tuple(ui.axis_x) + (1,)), (tuple(ui.axis_y) + (1,)), (tuple(ui.axis_z) + (1,)))):
             coords = verts_axes[i]
             shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
             batch = batch_for_shader(shader, "LINES", {"pos": coords})
