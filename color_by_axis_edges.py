@@ -63,7 +63,6 @@ class CBA_Edges(bpy.types.Operator):
 
                 # Custom matrix, mixed with the reference rotation
                 matrix_calc = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
-                print(matrix_calc)
             elif axis_type == "GLOBAL":
                 matrix_calc = matrix_world
 
