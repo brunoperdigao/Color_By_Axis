@@ -31,7 +31,7 @@ def register():
 
     bpy.types.Scene.axis_type = bpy.props.EnumProperty(items=items, name="Axis type", description="Choose axis type that will affect the overlay")
     bpy.types.Scene.axis_ref = bpy.props.PointerProperty(type=bpy.types.Object)
-    bpy.types.Scene.line_width = bpy.props.FloatProperty(name="Line Width", min=0.5, max=6.0)
+    bpy.types.Scene.line_width = bpy.props.FloatProperty(name="Line Width", min=0.5, max=6.0, step=5)
     bpy.types.Scene.draw_permanent = bpy.props.BoolProperty(name="Color by Axis")
     CBA_Edges.draw_handler = bpy.types.SpaceView3D.draw_handler_add(
         CBA_Edges.draw, (), "WINDOW", "POST_VIEW"

@@ -3,6 +3,7 @@ import bmesh
 import bgl
 import gpu
 import mathutils
+import copy
 from gpu_extras.batch import batch_for_shader
 
 
@@ -23,9 +24,6 @@ class CBA_Edges(bpy.types.Operator):
         verts = [[], [], []]
 
         def equals(c1, c2, precision=4):
-            # !!!
-            # STUDY THIS LINE
-            # !!!
             return abs(c1 - c2) < 10 ** (-precision)
 
         for o in context.selected_objects:
@@ -44,13 +42,28 @@ class CBA_Edges(bpy.types.Operator):
 
             axis_reference = context.scene.axis_ref
             matrix_world = o.matrix_world
-            
-            # !!!
-            # STUDY THIS LINE
-            # !!!
+            custom_matrix = None
             matrix_calc = mathutils.Matrix.Identity(4)
+            
             if axis_type == "REFERENCE" and axis_reference:
-                matrix_calc = axis_reference.matrix_world
+                obj_location = o.matrix_world.to_translation()
+                obj_scale = o.matrix_world.to_scale()
+                obj_rotation = o.matrix_world.to_euler()
+
+                # Get the reference rotation
+                custom_euler = copy.copy(axis_reference.matrix_world.to_euler())
+
+                # To get the rotation relative to the reference, subtract the reference euler by the object euler, and avoid negative numbers
+                custom_euler[0] = custom_euler[0] - obj_rotation[0]
+                custom_euler[1] = custom_euler[1] - obj_rotation[1]
+                custom_euler[2] = custom_euler[2] - obj_rotation[2]
+                for v in custom_euler:
+                    if v < 0:
+                        v = v * (-1)
+
+                # Custom matrix, mixed with the reference rotation
+                matrix_calc = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
+                print(matrix_calc)
             elif axis_type == "GLOBAL":
                 matrix_calc = matrix_world
 
