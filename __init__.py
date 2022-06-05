@@ -9,21 +9,19 @@ bl_info = {
 }
 
 import bpy
-from .color_by_axis import CBA_OT_Color_by_Axis
 from .color_by_axis_permanent import CBA_Permanent
-from .error_message import CBA_OT_ErrorMessage
 from .ui import CBA_PT_Main_Panel
 
 classes = (
-    CBA_OT_Color_by_Axis,
-    CBA_OT_ErrorMessage,
-    CBA_PT_Main_Panel
+    CBA_PT_Main_Panel,
+    CBA_Permanent
 )
 
 def register():
     from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
+    # for cls in classes:
+    #     register_class(cls)
+    register_class(CBA_PT_Main_Panel)
     
     items = [
     ("GLOBAL", "Global", "", 1),
@@ -33,7 +31,7 @@ def register():
 
     bpy.types.Scene.axis_type = bpy.props.EnumProperty(items=items, name="Axis type", description="Choose axis type that will affect the overlay")
     bpy.types.Scene.axis_ref = bpy.props.PointerProperty(type=bpy.types.Object)
-    bpy.types.Scene.draw_permanent = bpy.props.BoolProperty(name="Always ON")
+    bpy.types.Scene.draw_permanent = bpy.props.BoolProperty(name="Color by Axis")
     CBA_Permanent.draw_handler = bpy.types.SpaceView3D.draw_handler_add(
         CBA_Permanent.draw, (), "WINDOW", "POST_VIEW"
     )
@@ -41,8 +39,9 @@ def register():
 
 def unregister():
     from bpy.utils import unregister_class
-    for cls in classes:
-        unregister_class(cls)
+    # for cls in classes:
+    #     unregister_class(cls)
+    unregister_class(CBA_PT_Main_Panel)
 
     bpy.types.SpaceView3D.draw_handler_remove(CBA_Permanent.draw_handler, "WINDOW")
     del bpy.types.Scene.draw_permanent

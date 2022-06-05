@@ -17,6 +17,9 @@ class CBA_Permanent:
         verts = [[], [], []]
 
         def equals(c1, c2, precision=4):
+            # !!!
+            # STUDY THIS LINE
+            # !!!
             return abs(c1 - c2) < 10 ** (-precision)
 
         for o in context.selected_objects:
@@ -25,6 +28,9 @@ class CBA_Permanent:
             if context.mode == "EDIT_MESH":
                 bm = bmesh.from_edit_mesh(o.data)
             else:
+                # !!!
+                # STUDY THIS LINE
+                # !!!
                 object_eval = o.evaluated_get(depsgraph)
                 mesh_eval = object_eval.to_mesh()
                 bm = bmesh.new()
@@ -32,6 +38,10 @@ class CBA_Permanent:
 
             axis_reference = context.scene.axis_ref
             matrix_world = o.matrix_world
+            
+            # !!!
+            # STUDY THIS LINE
+            # !!!
             matrix_calc = mathutils.Matrix.Identity(4)
             if axis_type == "REFERENCE" and axis_reference:
                 matrix_calc = axis_reference.matrix_world
