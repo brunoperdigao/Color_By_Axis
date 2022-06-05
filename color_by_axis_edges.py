@@ -6,8 +6,14 @@ import mathutils
 from gpu_extras.batch import batch_for_shader
 
 
-class CBA_Permanent:
+class CBA_Edges(bpy.types.Operator):
+    bl_idname = "object.color_by_axis_edges"
+    bl_label = "Color By Axis"
+    bl_description = "Operator to color edges by axis"
+    bl_options = {'REGISTER'}
+
     draw_handler = None
+    
 
     @staticmethod
     def get_verts():
@@ -49,14 +55,17 @@ class CBA_Permanent:
                 matrix_calc = matrix_world
 
             for e in bm.edges:
-                v1_global = matrix_world @ e.verts[0].co
-                v2_global = matrix_world @ e.verts[1].co
-                v1 = matrix_calc @ e.verts[0].co
-                v2 = matrix_calc @ e.verts[1].co
-                for i, axis in enumerate(((1, 2), (0, 2), (0, 1))):
-                    if equals(v1[axis[0]], v2[axis[0]]) and equals(v1[axis[1]], v2[axis[1]]):
-                        verts[i].append(v1_global)
-                        verts[i].append(v2_global)
+                if context.mode == "EDIT_MESH" and e.hide:
+                    pass
+                else:
+                    v1_global = matrix_world @ e.verts[0].co
+                    v2_global = matrix_world @ e.verts[1].co
+                    v1 = matrix_calc @ e.verts[0].co
+                    v2 = matrix_calc @ e.verts[1].co
+                    for i, axis in enumerate(((1, 2), (0, 2), (0, 1))):
+                        if equals(v1[axis[0]], v2[axis[0]]) and equals(v1[axis[1]], v2[axis[1]]):
+                            verts[i].append(v1_global)
+                            verts[i].append(v2_global)
 
         return verts
 
@@ -64,8 +73,10 @@ class CBA_Permanent:
     def draw():
         if not hasattr(bpy.context.scene, "draw_permanent") or not bpy.context.scene.draw_permanent:
             return
-        bgl.glLineWidth(2)
-        verts_axes = CBA_Permanent.get_verts()
+        context = bpy.context
+        line_width = context.scene.line_width
+        bgl.glLineWidth(line_width)
+        verts_axes = CBA_Edges.get_verts()
         for i, color in enumerate(((1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1))):
             coords = verts_axes[i]
             shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
