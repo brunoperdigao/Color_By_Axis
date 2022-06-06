@@ -34,9 +34,6 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         layout.prop(scene, "draw_permanent")
         layout.prop(scene, "line_width")
 
-        # Use the axis_type chosen in the UI as an input to the operator
-        color_by_axis_button.axis_type = scene.axis_type
-
 
 
 

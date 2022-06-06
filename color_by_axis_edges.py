@@ -32,9 +32,6 @@ class CBA_Edges(bpy.types.Operator):
             if context.mode == "EDIT_MESH":
                 bm = bmesh.from_edit_mesh(o.data)
             else:
-                # !!!
-                # STUDY THIS LINE
-                # !!!
                 object_eval = o.evaluated_get(depsgraph)
                 mesh_eval = object_eval.to_mesh()
                 bm = bmesh.new()
@@ -42,7 +39,6 @@ class CBA_Edges(bpy.types.Operator):
 
             axis_reference = context.scene.axis_ref
             matrix_world = o.matrix_world
-            custom_matrix = None
             matrix_calc = mathutils.Matrix.Identity(4)
             
             if axis_type == "REFERENCE" and axis_reference:
@@ -63,6 +59,7 @@ class CBA_Edges(bpy.types.Operator):
 
                 # Custom matrix, mixed with the reference rotation
                 matrix_calc = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
+                
             elif axis_type == "GLOBAL":
                 matrix_calc = matrix_world
 
