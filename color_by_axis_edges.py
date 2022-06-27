@@ -1,3 +1,4 @@
+from distutils.command.config import config
 import bpy
 import bmesh
 import bgl
@@ -82,6 +83,7 @@ class CBA_Edges(bpy.types.Operator):
     def draw():
         if not hasattr(bpy.context.scene, "draw_permanent") or not bpy.context.scene.draw_permanent:
             return
+        
         context = bpy.context
         line_width = context.scene.line_width
         bgl.glLineWidth(line_width)
@@ -90,12 +92,15 @@ class CBA_Edges(bpy.types.Operator):
         theme = context.preferences.themes[0]
         ui = theme.user_interface
         
-        
         verts_axes = CBA_Edges.get_verts()
         for i, color in enumerate(((tuple(ui.axis_x) + (1,)), (tuple(ui.axis_y) + (1,)), (tuple(ui.axis_z) + (1,)))):
             coords = verts_axes[i]
-            shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
+            shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR", config='CLIPPED')
             batch = batch_for_shader(shader, "LINES", {"pos": coords})
             shader.bind()
             shader.uniform_float("color", color)
+            if not hasattr(bpy.context.scene, "draw_in_front") or not bpy.context.scene.draw_in_front:
+                bgl.glEnable(bgl.GL_DEPTH_TEST) # draw behind the objects (implement a GPU Module version of this)
+                bgl.glDepthMask(bgl.GL_TRUE) # draw behind the objects (implement a GPU Module version of this)
             batch.draw(shader)
+

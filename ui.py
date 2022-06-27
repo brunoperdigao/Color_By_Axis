@@ -32,6 +32,7 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         col2.label(text="Reference Object")
         col2.prop_search(scene, 'axis_ref', scene, 'objects', text="")
         layout.prop(scene, "draw_permanent")
+        layout.prop(scene, "draw_in_front")
         layout.prop(scene, "line_width")
 
 
