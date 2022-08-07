@@ -15,7 +15,7 @@ class CBA_Edges(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     draw_handler = None
-    
+
 
     @staticmethod
     def get_verts():
@@ -41,7 +41,7 @@ class CBA_Edges(bpy.types.Operator):
             axis_reference = context.scene.axis_ref
             matrix_world = o.matrix_world
             matrix_calc = mathutils.Matrix.Identity(4)
-            
+
             if axis_type == "REFERENCE" and axis_reference:
                 obj_location = o.matrix_world.to_translation()
                 obj_scale = o.matrix_world.to_scale()
@@ -60,7 +60,8 @@ class CBA_Edges(bpy.types.Operator):
 
                 # Custom matrix, mixed with the reference rotation
                 matrix_calc = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
-                
+
+
             elif axis_type == "GLOBAL":
                 matrix_calc = matrix_world
 
@@ -83,15 +84,14 @@ class CBA_Edges(bpy.types.Operator):
     def draw():
         if not hasattr(bpy.context.scene, "draw_permanent") or not bpy.context.scene.draw_permanent:
             return
-        
+
         context = bpy.context
         line_width = context.scene.line_width
         bgl.glLineWidth(line_width)
-        
         # Get colors from User Preferences in Blender Default Theme
         theme = context.preferences.themes[0]
         ui = theme.user_interface
-        
+
         verts_axes = CBA_Edges.get_verts()
         for i, color in enumerate(((tuple(ui.axis_x) + (1,)), (tuple(ui.axis_y) + (1,)), (tuple(ui.axis_z) + (1,)))):
             coords = verts_axes[i]

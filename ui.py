@@ -21,9 +21,7 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         layout = self.layout
         layout.operator_context = 'INVOKE_DEFAULT'
 
-        
-        
-        
+
         scene = bpy.context.scene
         col1 = layout.column()
         col1.label(text="Axis Type:")
