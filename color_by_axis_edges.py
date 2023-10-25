@@ -1,7 +1,6 @@
 from distutils.command.config import config
 import bpy
 import bmesh
-import bgl
 import gpu
 import mathutils
 import copy
@@ -87,7 +86,6 @@ class CBA_Edges(bpy.types.Operator):
 
         context = bpy.context
         line_width = context.scene.line_width
-        bgl.glLineWidth(line_width)
         # Get colors from User Preferences in Blender Default Theme
         theme = context.preferences.themes[0]
         ui = theme.user_interface
@@ -95,12 +93,14 @@ class CBA_Edges(bpy.types.Operator):
         verts_axes = CBA_Edges.get_verts()
         for i, color in enumerate(((tuple(ui.axis_x) + (1,)), (tuple(ui.axis_y) + (1,)), (tuple(ui.axis_z) + (1,)))):
             coords = verts_axes[i]
-            shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR", config='CLIPPED')
+            shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
             batch = batch_for_shader(shader, "LINES", {"pos": coords})
             shader.bind()
             shader.uniform_float("color", color)
+            gpu.state.line_width_set(line_width)
             if not hasattr(bpy.context.scene, "draw_in_front") or not bpy.context.scene.draw_in_front:
-                bgl.glEnable(bgl.GL_DEPTH_TEST) # draw behind the objects (implement a GPU Module version of this)
-                bgl.glDepthMask(bgl.GL_TRUE) # draw behind the objects (implement a GPU Module version of this)
+                gpu.state.depth_test_set('LESS_EQUAL')
+                gpu.state.depth_mask_set(True)
+                
             batch.draw(shader)
 

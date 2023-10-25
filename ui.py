@@ -1,13 +1,13 @@
 import bpy
 from .color_by_axis_edges import CBA_Edges
 
+
 class CBA_PT_Main_Panel(bpy.types.Panel):
     bl_idname = "CBA_PT_Main_Panel"
     bl_label = "Color by Axis"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "Color by Axis"
-
 
     def draw(self, context):
 
@@ -21,8 +21,7 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         layout = self.layout
         layout.operator_context = 'INVOKE_DEFAULT'
 
-
-        scene = bpy.context.scene
+        scene = context.scene
         col1 = layout.column()
         col1.label(text="Axis Type:")
         col1.prop(scene, 'axis_type', text='')
@@ -32,7 +31,3 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
         layout.prop(scene, "draw_permanent")
         layout.prop(scene, "draw_in_front")
         layout.prop(scene, "line_width")
-
-
-
-
