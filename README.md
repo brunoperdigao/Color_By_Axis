@@ -35,7 +35,7 @@ The add-on will create a Panel in the N-Panel, called Color by Axis. Here is an 
 - Select both cubes and enter "Edit Mode". 
 - Click the checkbox "Color by Axis" in the N-panel. The edges of the cube will be colored according to the global axis that they are parallel to.
 
-![image](https://user-images.githubusercontent.com/57102715/172069203-bb65f4c0-7cab-491c-81fe-6d5c83047d97.png)
+![image](https://user-images.githubusercontent.com/57102715/172069203-bb65f4c0-7cab-491c-81fe-6d5c83047d97.png#vitrinedev)
 
 ---
 - If "LOCAL" Axis Type is selected, it will color the edges based on the local coordinates of the objects.
