@@ -1,4 +1,4 @@
-from distutils.command.config import config
+# from distutils.command.config import config
 import bpy
 import bmesh
 import gpu
@@ -93,7 +93,7 @@ class CBA_Edges(bpy.types.Operator):
         verts_axes = CBA_Edges.get_verts()
         for i, color in enumerate(((tuple(ui.axis_x) + (1,)), (tuple(ui.axis_y) + (1,)), (tuple(ui.axis_z) + (1,)))):
             coords = verts_axes[i]
-            shader = gpu.shader.from_builtin("3D_UNIFORM_COLOR")
+            shader = gpu.shader.from_builtin("UNIFORM_COLOR")
             batch = batch_for_shader(shader, "LINES", {"pos": coords})
             shader.bind()
             shader.uniform_float("color", color)
