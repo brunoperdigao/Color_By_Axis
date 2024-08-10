@@ -13,21 +13,21 @@ class CBA_PT_Main_Panel(bpy.types.Panel):
 
         @classmethod
         def poll(self, context):
-            if context.mode != 'OBJECT':
+            if context.mode != "OBJECT":
                 return True
             else:
                 return False
 
         layout = self.layout
-        layout.operator_context = 'INVOKE_DEFAULT'
+        layout.operator_context = "INVOKE_DEFAULT"
 
         scene = context.scene
         col1 = layout.column()
         col1.label(text="Axis Type:")
-        col1.prop(scene, 'axis_type', text='')
+        col1.prop(scene, "axis_type", text="")
         col2 = layout.column()
         col2.label(text="Reference Object")
-        col2.prop_search(scene, 'axis_ref', scene, 'objects', text="")
+        col2.prop_search(scene, "axis_ref", scene, "objects", text="")
         layout.prop(scene, "draw_permanent")
         layout.prop(scene, "draw_in_front")
         layout.prop(scene, "line_width")

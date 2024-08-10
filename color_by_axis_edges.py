@@ -11,10 +11,9 @@ class CBA_Edges(bpy.types.Operator):
     bl_idname = "object.color_by_axis_edges"
     bl_label = "Color By Axis"
     bl_description = "Operator to color edges by axis"
-    bl_options = {'REGISTER'}
+    bl_options = {"REGISTER"}
 
     draw_handler = None
-
 
     @staticmethod
     def get_verts():
@@ -58,8 +57,9 @@ class CBA_Edges(bpy.types.Operator):
                         v = v * (-1)
 
                 # Custom matrix, mixed with the reference rotation
-                matrix_calc = mathutils.Matrix.LocRotScale(obj_location, custom_euler, obj_scale)
-
+                matrix_calc = mathutils.Matrix.LocRotScale(
+                    obj_location, custom_euler, obj_scale
+                )
 
             elif axis_type == "GLOBAL":
                 matrix_calc = matrix_world
@@ -73,7 +73,9 @@ class CBA_Edges(bpy.types.Operator):
                     v1 = matrix_calc @ e.verts[0].co
                     v2 = matrix_calc @ e.verts[1].co
                     for i, axis in enumerate(((1, 2), (0, 2), (0, 1))):
-                        if equals(v1[axis[0]], v2[axis[0]]) and equals(v1[axis[1]], v2[axis[1]]):
+                        if equals(v1[axis[0]], v2[axis[0]]) and equals(
+                            v1[axis[1]], v2[axis[1]]
+                        ):
                             verts[i].append(v1_global)
                             verts[i].append(v2_global)
 
@@ -81,7 +83,10 @@ class CBA_Edges(bpy.types.Operator):
 
     @staticmethod
     def draw():
-        if not hasattr(bpy.context.scene, "draw_permanent") or not bpy.context.scene.draw_permanent:
+        if (
+            not hasattr(bpy.context.scene, "draw_permanent")
+            or not bpy.context.scene.draw_permanent
+        ):
             return
 
         context = bpy.context
@@ -91,16 +96,24 @@ class CBA_Edges(bpy.types.Operator):
         ui = theme.user_interface
 
         verts_axes = CBA_Edges.get_verts()
-        for i, color in enumerate(((tuple(ui.axis_x) + (1,)), (tuple(ui.axis_y) + (1,)), (tuple(ui.axis_z) + (1,)))):
+        for i, color in enumerate(
+            (
+                (tuple(ui.axis_x) + (1,)),
+                (tuple(ui.axis_y) + (1,)),
+                (tuple(ui.axis_z) + (1,)),
+            )
+        ):
             coords = verts_axes[i]
             shader = gpu.shader.from_builtin("UNIFORM_COLOR")
             batch = batch_for_shader(shader, "LINES", {"pos": coords})
             shader.bind()
             shader.uniform_float("color", color)
             gpu.state.line_width_set(line_width)
-            if not hasattr(bpy.context.scene, "draw_in_front") or not bpy.context.scene.draw_in_front:
-                gpu.state.depth_test_set('LESS_EQUAL')
+            if (
+                not hasattr(bpy.context.scene, "draw_in_front")
+                or not bpy.context.scene.draw_in_front
+            ):
+                gpu.state.depth_test_set("LESS_EQUAL")
                 gpu.state.depth_mask_set(True)
-                
-            batch.draw(shader)
 
+            batch.draw(shader)
